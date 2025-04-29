@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+openai
+pandas
+prophet
+scikit-learn
+python-multipart
