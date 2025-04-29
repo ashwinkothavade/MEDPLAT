@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import multer from 'multer';
 import { parse as csvParse } from 'csv-parse/sync';
 import fs from 'fs';
+import bcrypt from 'bcryptjs';
 
 dotenv.config();
 
@@ -26,6 +27,14 @@ const upload = multer({ dest: 'uploads/' });
 const UploadedDataSchema = new mongoose.Schema({}, { strict: false });
 const UploadedData = mongoose.model('UploadedData', UploadedDataSchema, 'uploaded_data');
 
+// User schema
+const UserSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, required: true },
+});
+const User = mongoose.model('User', UserSchema, 'users');
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
@@ -40,6 +49,25 @@ function rbac(role) {
     next();
   };
 }
+
+// Registration endpoint
+app.post('/register', async (req, res) => {
+  const { username, password, role } = req.body;
+  if (!username || !password || !role) {
+    return res.status(400).json({ detail: 'Username, password, and role are required.' });
+  }
+  try {
+    const existing = await User.findOne({ username });
+    if (existing) {
+      return res.status(400).json({ detail: 'Username already exists.' });
+    }
+    const hashed = await bcrypt.hash(password, 10);
+    await User.create({ username, password: hashed, role });
+    res.json({ status: 'registered' });
+  } catch (err) {
+    res.status(500).json({ detail: 'Registration failed', error: err.message });
+  }
+});
 
 // Users
 app.get('/api/users', (req, res) => {

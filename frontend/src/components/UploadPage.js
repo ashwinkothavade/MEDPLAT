@@ -36,8 +36,30 @@ const UploadPage = () => {
     <Container maxWidth="sm">
       <Box mt={5}>
         <Typography variant="h4" gutterBottom>Upload Data (CSV/JSON)</Typography>
-        <Paper sx={{ p: 2, mb: 2 }}>
-          <input type="file" accept=".csv,.json" onChange={handleFileChange} />
+        <Paper
+          sx={{ p: 2, mb: 2, border: '2px dashed #aaa', textAlign: 'center', cursor: 'pointer', background: file ? '#f3f6fa' : 'inherit' }}
+          onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
+          onDrop={e => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+              setFile(e.dataTransfer.files[0]);
+              setResult(null);
+              setError(null);
+            }
+          }}
+          onClick={() => document.getElementById('hidden-upload-input').click()}
+        >
+          <input
+            id="hidden-upload-input"
+            type="file"
+            accept=".csv,.json"
+            style={{ display: 'none' }}
+            onChange={handleFileChange}
+          />
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            {file ? `Selected: ${file.name}` : 'Drag and drop a CSV or JSON file here, or click to select.'}
+          </Typography>
           <Button variant="contained" sx={{ mt: 2 }} onClick={handleUpload} disabled={!file}>
             Upload
           </Button>

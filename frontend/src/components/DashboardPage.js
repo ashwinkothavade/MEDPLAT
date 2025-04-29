@@ -18,14 +18,23 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend);
 
-const DashboardPage = () => {
+const DashboardPage = ({ externalConfig, setExternalConfig, hideTitle }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [xField, setXField] = useState('');
-  const [yField, setYField] = useState('');
+  // Use external state if provided (for multi-graph)
+  const [xField, setXField] = externalConfig && setExternalConfig
+    ? [externalConfig.xField, x => setExternalConfig({ ...externalConfig, xField: x })]
+    : useState('');
+  const [yField, setYField] = externalConfig && setExternalConfig
+    ? [externalConfig.yField, y => setExternalConfig({ ...externalConfig, yField: y })]
+    : useState('');
+  const [chartType, setChartType] = externalConfig && setExternalConfig
+    ? [externalConfig.chartType, t => setExternalConfig({ ...externalConfig, chartType: t })]
+    : useState('bar');
+  const [interval, setInterval] = externalConfig && setExternalConfig
+    ? [externalConfig.interval, i => setExternalConfig({ ...externalConfig, interval: i })]
+    : useState('none');
   const [numericFields, setNumericFields] = useState([]);
-  const [chartType, setChartType] = useState('bar'); // bar, line, pie
-  const [interval, setInterval] = useState('none'); // none, yearly, half-yearly, monthly
 
   // Helper: Check if a field is date-like
   function isDateLike(val) {
@@ -137,9 +146,11 @@ const DashboardPage = () => {
   return (
     <Container maxWidth="lg">
       <Box mt={5}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, letterSpacing: 1, mb: 3, textAlign: 'center' }}>
-          Dashboard
-        </Typography>
+        {!hideTitle && (
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, letterSpacing: 1, mb: 3, textAlign: 'center' }}>
+            Dashboard
+          </Typography>
+        )}
         {/* Personalized KPI and Analytics for logged-in users */}
         <Box mb={4}>
           {localStorage.getItem('token') && <KPIAndAnalytics />}
@@ -191,27 +202,7 @@ const DashboardPage = () => {
                 {chartType === 'line' && <Line data={chartData} options={chartOptions} />}
                 {chartType === 'pie' && <Pie data={chartData} options={chartOptions} />}
               </Paper>
-              <Paper sx={{ p: 2, flex: 3, minWidth: 0, boxShadow: 4, transition: 'box-shadow 0.3s' }} elevation={4}>
-                <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>Uploaded Data</Typography>
-                <TableContainer>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        {Object.keys(data[0] || {}).map(f => <TableCell key={f}>{f}</TableCell>)}
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {data.map((row, idx) => (
-                        <TableRow key={idx}>
-                          {Object.keys(row).map((key) => (
-                            <TableCell key={key}>{String(row[key])}</TableCell>
-                          ))}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Paper>
+
             </Box>
           </Box>
         )}
