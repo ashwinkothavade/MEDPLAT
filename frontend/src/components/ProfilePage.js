@@ -16,24 +16,30 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(false);
 
   // Fetch user profile if missing but token exists
+  const fetchProfile = async () => {
+    if (!localStorage.getItem('token')) {
+      setError('No token found. Please login.');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get('http://localhost:8000/api/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUser(res.data.user);
+      setEmail(res.data.user.email || '');
+    } catch (e) {
+      setError('Could not load profile. Please login again.');
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user && localStorage.getItem('token')) {
-        setLoading(true);
-        try {
-          const token = localStorage.getItem('token');
-          const res = await axios.get('http://localhost:8000/api/me', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          setUser(res.data.user);
-          setEmail(res.data.user.email || '');
-        } catch (e) {
-          setError('Could not load profile. Please login again.');
-        }
-        setLoading(false);
-      }
-    };
-    fetchProfile();
+    if (!user && localStorage.getItem('token')) {
+      fetchProfile();
+    }
     // eslint-disable-next-line
   }, [user, setUser]);
 
@@ -67,6 +73,14 @@ const ProfilePage = () => {
 
   if (loading) return (
     <Container maxWidth="sm"><Box mt={5} textAlign="center"><CircularProgress /></Box></Container>
+  );
+  if (error) return (
+    <Container maxWidth="sm">
+      <Box mt={5} textAlign="center">
+        <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
+        <Button variant="outlined" onClick={fetchProfile}>Retry</Button>
+      </Box>
+    </Container>
   );
   if (!user) return (
     <Container maxWidth="sm"><Box mt={5} textAlign="center"><Typography>No user data. Please login.</Typography></Box></Container>

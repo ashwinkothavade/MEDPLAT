@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Container, Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, Button, Alert } from '@mui/material';
+import { Container, Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, Button, Alert, Tooltip } from '@mui/material';
 import { UserContext } from '../UserContext';
 import axios from 'axios';
 
@@ -40,8 +40,8 @@ const UserManagementPage = () => {
     }
   };
 
-  if (!user || user.role !== 'admin') {
-    return <Typography variant="h6" color="error" sx={{ mt: 5 }}>Access Denied: Admins Only</Typography>;
+  if (!user) {
+    return <Typography variant="h6" color="error" sx={{ mt: 5 }}>Please log in to view this page.</Typography>;
   }
 
   return (
@@ -67,19 +67,23 @@ const UserManagementPage = () => {
                     <Select
                       value={u.role}
                       onChange={e => handleRoleChange(u.username, e.target.value)}
-                      disabled={u.role === 'admin'}
+                      disabled={u.role === 'admin' || user.role !== 'admin'}
                     >
                       {roles.map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="contained"
-                      onClick={() => handleRoleChange(u.username, u.role)}
-                      disabled={u.role === 'admin'}
-                    >
-                      Update
-                    </Button>
+                    <Tooltip title={user.role !== 'admin' ? 'Only admins can change roles' : ''}>
+                      <span>
+                        <Button
+                          variant="contained"
+                          onClick={() => handleRoleChange(u.username, u.role)}
+                          disabled={u.role === 'admin' || user.role !== 'admin'}
+                        >
+                          Update
+                        </Button>
+                      </span>
+                    </Tooltip>
                   </TableCell>
                 </TableRow>
               ))}

@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Container, Box, Typography, TextField, Button, Alert } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../UserContext';
 
 const LoginPage = ({ setAuth }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { setUser } = useContext(UserContext);
 
   const handleLogin = async () => {
     setError(null);
@@ -18,13 +20,19 @@ const LoginPage = ({ setAuth }) => {
       const res = await axios.post('http://localhost:8000/token', params, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       });
-      localStorage.setItem('token', res.data.access_token);
+      localStorage.setItem('token', res.data.token);
+      // Fetch user profile and update context
+      const profileRes = await axios.get('http://localhost:8000/api/me', {
+        headers: { Authorization: `Bearer ${username}` }
+      });
+      setUser(profileRes.data.user);
       setAuth(true);
       navigate('/');
     } catch (e) {
       setError('Invalid username or password');
     }
   };
+
 
   return (
     <Container maxWidth="xs">

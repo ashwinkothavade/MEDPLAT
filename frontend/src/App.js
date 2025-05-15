@@ -83,9 +83,7 @@ function App() {
                     {auth && (
                       <>
                         <Button color="inherit" component={Link} to="/profile">Profile</Button>
-                        {user && user.role === 'admin' && (
-                          <Button color="inherit" component={Link} to="/users">User Management</Button>
-                        )}
+                        <Button color="inherit" component={Link} to="/users">User Management</Button>
                         <Tooltip title={user?.role || 'Unknown'} placement="bottom">
                           <Avatar sx={{ bgcolor: roleColor(user?.role), mx: 1, width: 32, height: 32, fontSize: 16 }}>
                             {user?.role ? user.role.charAt(0).toUpperCase() : '?'}

@@ -135,7 +135,7 @@ app.post('/token', async (req, res) => {
     if (!user || !bcrypt.compareSync(password, user.password)) {
       return res.status(401).json({ error: 'Invalid username or password' });
     }
-    const token = `demo-token-${user.role}`;
+    const token = username;
     res.json({ status: 'success', token, role: user.role });
   } catch (error) {
     res.status(500).json({ error: 'Failed to authenticate user' });
@@ -161,9 +161,18 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// Users
-app.get('/api/users', (req, res) => {
-  res.json([{ id: 1, name: 'Admin', role: 'admin' }, { id: 2, name: 'Doctor', role: 'doctor' }]);
+// Endpoint to get all users (admin only)
+app.get('/users', authMiddleware, async (req, res) => {
+  try {
+    const adminUser = await User.findOne({ username: req.username });
+    if (!adminUser || adminUser.role !== 'admin') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    const users = await User.find({}, { username: 1, role: 1, _id: 0 });
+    res.json({ users });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
 });
 
 // Dashboards
@@ -221,33 +230,6 @@ app.use('/api/ai', aiRouter);
 
 app.get('/suggest-kpis', (req, res) => {
   res.json({ message: 'This is a placeholder response for suggest-kpis.' });
-});
-
-  app.get('/api/me', async (req, res) => {
-    const token = req.headers['authorization'];
-    if (!token) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-  try {
-    console.log('Received token:', token); // Debugging log
-    console.log('Token format:', token); // Debugging log
-    if (!token.includes(' ')) {
-      console.error('Invalid token format:', token); // Debugging log
-      return res.status(400).json({ error: 'Invalid token format' });
-    }
-    const username = token.split(' ')[1]; // Simplified token logic
-    console.log('Extracted username after split:', username); // Debugging log
-    console.log('Extracted username after split:', username); // Debugging log
-    console.log('Extracted username:', username); // Debugging log
-    console.log('Querying database for username:', username); // Debugging log
-    const user = await db.collection('users').findOne({ username });
-    console.log('Database query result:', user); // Debugging log
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json({ username: user.username, role: user.role });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch user data' });
-  }
 });
 
 const PORT = process.env.PORT || 8000;

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Box, Typography, TextField, Button, Paper } from '@mui/material';
 import axios from 'axios';
+import DataSummary from './DataSummary';
 
 const ChatbotPage = () => {
   const [messages, setMessages] = useState([]);
@@ -45,6 +46,7 @@ const ChatbotPage = () => {
           />
           <Button variant="contained" onClick={handleSend} disabled={loading}>Send</Button>
         </Box>
+        <DataSummary />
       </Box>
     </Container>
   );
