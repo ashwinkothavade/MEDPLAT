@@ -12,6 +12,7 @@ import HomePage from './components/HomePage';
 import ChatbotPage from './components/ChatbotPage';
 import UploadPage from './components/UploadPage';
 import DashboardPage from './components/DashboardPage';
+import DashboardManager from './components/DashboardManager';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import ProfilePage from './components/ProfilePage';
@@ -68,6 +69,8 @@ function App() {
           <UserContext.Consumer>
             {({ user }) => (
               <>
+                {console.log('User data in App.js:', user)} {/* Debugging log */}
+              {/* Removed duplicate fragment */}
                 <AppBar position="sticky" color="primary" elevation={3} sx={{ mb: 2 }}>
                   <Toolbar>
                     <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700, letterSpacing: 1 }}>
@@ -76,19 +79,19 @@ function App() {
                     <Button color="inherit" component={Link} to="/">Home</Button>
                     <Button color="inherit" component={Link} to="/chatbot">Chatbot</Button>
                     <Button color="inherit" component={Link} to="/upload">Upload Data</Button>
-                    <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>
-                    {user && (
+                    <Button color="inherit" component={Link} to="/dashboard-manager">Dashboard</Button>
+                    {auth && (
                       <>
                         <Button color="inherit" component={Link} to="/profile">Profile</Button>
-                        {user.role === 'admin' && (
+                        {user && user.role === 'admin' && (
                           <Button color="inherit" component={Link} to="/users">User Management</Button>
                         )}
-                        <Tooltip title={user.role} placement="bottom">
-                          <Avatar sx={{ bgcolor: roleColor(user.role), mx: 1, width: 32, height: 32, fontSize: 16 }}>
-                            {user.role ? user.role.charAt(0).toUpperCase() : '?'}
+                        <Tooltip title={user?.role || 'Unknown'} placement="bottom">
+                          <Avatar sx={{ bgcolor: roleColor(user?.role), mx: 1, width: 32, height: 32, fontSize: 16 }}>
+                            {user?.role ? user.role.charAt(0).toUpperCase() : '?'}
                           </Avatar>
                         </Tooltip>
-                        <Typography sx={{ mr: 2, fontWeight: 500 }}>{user.username}</Typography>
+                        <Typography sx={{ mr: 2, fontWeight: 500 }}>{user?.username || 'Guest'}</Typography>
                       </>
                     )}
                     <IconButton sx={{ ml: 1 }} onClick={() => setMode(mode === 'light' ? 'dark' : 'light')} color="inherit">
@@ -105,7 +108,8 @@ function App() {
                       <Route path="/" element={<HomePage />} />
                       <Route path="/chatbot" element={<ChatbotPage />} />
                       <Route path="/upload" element={<UploadPage />} />
-                      <Route path="/dashboard" element={<DashboardPage />} />
+                      <Route path="/dashboard" element={<DashboardManager />} />
+<Route path="/dashboard-manager" element={<DashboardManager />} />
                       <Route path="/login" element={<LoginPage setAuth={setAuth} />} />
                       <Route path="/register" element={<RegisterPage />} />
                       <Route path="/profile" element={<ProfilePage />} />

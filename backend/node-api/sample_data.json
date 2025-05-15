@@ -1,0 +1,15 @@
+[
+  {"date": "2025-05-01", "admissions": 12, "discharges": 8, "ward": "A"},
+  {"date": "2025-05-01", "admissions": 15, "discharges": 10, "ward": "A"},
+  {"date": "2025-05-02", "admissions": 9, "discharges": 7, "ward": "B"},
+  {"date": "2025-05-01", "admissions": 18, "discharges": 14, "ward": "B"},
+  {"date": "2025-05-01", "admissions": 20, "discharges": 16, "ward": "A"},
+  {"date": "2025-05-01", "admissions": 11, "discharges": 9, "ward": "C"},
+  {"date": "2025-05-01", "admissions": 14, "discharges": 13, "ward": "C"},
+  {"date": "2025-05-02", "admissions": 12, "discharges": 11, "ward": "A"},
+  {"date": "2025-05-02", "admissions": 15, "discharges": 12, "ward": "B"},
+  {"date": "2025-05-03", "admissions": 10, "discharges": 9, "ward": "C"},
+  {"date": "2025-05-03", "admissions": 12, "discharges": 10, "ward": "A"},
+  {"date": "2025-05-03", "admissions": 13, "discharges": 11, "ward": "B"},
+  {"date": "2025-05-03", "admissions": 11, "discharges": 10, "ward": "C"}
+]

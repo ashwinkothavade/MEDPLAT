@@ -23,25 +23,24 @@ This project is a modular, AI-powered dashboard builder for the MEDPlat platform
 - Enable real-time data synchronization
 
 ### AI-Powered Analytics
-- Provide natural language processing capabilities for medical queries
-- Implement predictive analytics for patient care
-- Enable anomaly detection in medical data patterns
+- Provide natural language processing capabilities for queries
+- Implement predictive analytics for care
+- Enable anomaly detection in data patterns
 - Generate automated reports and insights
 
 ### User Experience
-- Create an intuitive interface for medical professionals
+- Create an intuitive interface for professionals
 - Enable drag-and-drop dashboard creation
 - Provide customizable visualization options
 - Support mobile-responsive design
 
 ### Security and Compliance
 - Implement role-based access control (RBAC)
-- Ensure HIPAA compliance for medical data
 - Implement secure authentication and authorization
-- Protect patient privacy and data integrity
+- Protect privacy and data integrity
 
 ### Scalability and Performance
-- Design for handling large medical datasets
+- Design for handling large datasets
 - Implement efficient data processing algorithms
 - Support real-time data updates
 - Ensure fast response times for critical operations

@@ -19,20 +19,29 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend);
 
 const DashboardPage = ({ externalConfig, setExternalConfig, hideTitle }) => {
+  // Provide default config if any field is missing
+  const safeConfig = {
+    xField: '',
+    yField: '',
+    chartType: 'bar',
+    interval: 'none',
+    ...(externalConfig || {})
+  };
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   // Use external state if provided (for multi-graph)
   const [xField, setXField] = externalConfig && setExternalConfig
-    ? [externalConfig.xField, x => setExternalConfig({ ...externalConfig, xField: x })]
+    ? [safeConfig.xField, x => setExternalConfig({ ...safeConfig, xField: x })]
     : useState('');
   const [yField, setYField] = externalConfig && setExternalConfig
-    ? [externalConfig.yField, y => setExternalConfig({ ...externalConfig, yField: y })]
+    ? [safeConfig.yField, y => setExternalConfig({ ...safeConfig, yField: y })]
     : useState('');
   const [chartType, setChartType] = externalConfig && setExternalConfig
-    ? [externalConfig.chartType, t => setExternalConfig({ ...externalConfig, chartType: t })]
+    ? [safeConfig.chartType, t => setExternalConfig({ ...safeConfig, chartType: t })]
     : useState('bar');
   const [interval, setInterval] = externalConfig && setExternalConfig
-    ? [externalConfig.interval, i => setExternalConfig({ ...externalConfig, interval: i })]
+    ? [safeConfig.interval, i => setExternalConfig({ ...safeConfig, interval: i })]
     : useState('none');
   const [numericFields, setNumericFields] = useState([]);
 
@@ -71,17 +80,18 @@ const DashboardPage = ({ externalConfig, setExternalConfig, hideTitle }) => {
         const res = await axios.get('http://localhost:8000/api/data');
         setData(res.data.data);
         if (res.data.data.length > 0) {
-          // Auto-detect numeric fields
+          // Enhanced auto-detection: Prefer 'date' for xField, numeric for yField
           const sample = res.data.data[0];
-          const nums = Object.keys(sample).filter(k => typeof sample[k] === 'number' || (!isNaN(Number(sample[k])) && sample[k] !== '' && sample[k] !== null));
+          const keys = Object.keys(sample);
+          const nums = keys.filter(k => typeof sample[k] === 'number' || (!isNaN(Number(sample[k])) && sample[k] !== '' && sample[k] !== null));
           setNumericFields(nums);
-          if (nums.length > 1) {
-            setXField(nums[0]);
-            setYField(nums[1]);
-          } else if (nums.length === 1) {
-            setXField(nums[0]);
-            setYField(nums[0]);
-          }
+          // Prefer 'date' for xField if present
+          let x = keys.find(k => k.toLowerCase() === 'date') || keys.find(k => isNaN(Number(sample[k])));
+          let y = nums.find(k => k.toLowerCase() !== 'date');
+          if (!x && keys.length > 0) x = keys[0];
+          if (!y && nums.length > 0) y = nums[0];
+          if (x) setXField(x);
+          if (y) setYField(y);
         }
       } catch (e) {
         setData([]);
@@ -99,15 +109,36 @@ const DashboardPage = ({ externalConfig, setExternalConfig, hideTitle }) => {
     if (interval !== 'none' && data.length > 0 && isDateLike(data[0][xField])) {
       displayData = groupByInterval(data, xField, yField, interval);
     }
+    // For bar/line charts: group and sum by xField if there are duplicates
+    if ((chartType === 'bar' || chartType === 'line') && displayData.length > 0) {
+      const grouped = {};
+      for (const row of displayData) {
+        const x = String(row[xField]);
+        const y = Number(row[yField]);
+        if (!grouped[x]) grouped[x] = 0;
+        grouped[x] += isNaN(y) ? 0 : y;
+      }
+      displayData = Object.entries(grouped).map(([k, v]) => ({ [xField]: k, [yField]: v }));
+    }
     const labels = displayData.map(row => String(row[xField]));
     const values = displayData.map(row => Number(row[yField]));
     if (chartType === 'pie') {
+      // Group and sum by xField for pie chart
+      const grouped = {};
+      for (const row of displayData) {
+        const x = String(row[xField]);
+        const y = Number(row[yField]);
+        if (!grouped[x]) grouped[x] = 0;
+        grouped[x] += isNaN(y) ? 0 : y;
+      }
+      const pieLabels = Object.keys(grouped);
+      const pieValues = pieLabels.map(l => grouped[l]);
       return {
-        labels,
+        labels: pieLabels,
         datasets: [
           {
             label: `${yField}`,
-            data: values,
+            data: pieValues,
             backgroundColor: [
               '#1976d2', '#ff9800', '#4caf50', '#e91e63', '#9c27b0',
               '#00bcd4', '#ffc107', '#8bc34a', '#f44336', '#607d8b'
@@ -128,7 +159,7 @@ const DashboardPage = ({ externalConfig, setExternalConfig, hideTitle }) => {
         },
       ],
     };
-  }, [xField, yField, data, chartType]);
+  }, [xField, yField, data, chartType, interval]);
 
   const chartOptions = {
     responsive: true,
@@ -198,9 +229,15 @@ const DashboardPage = ({ externalConfig, setExternalConfig, hideTitle }) => {
             <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={3}>
               <Paper sx={{ p: 2, flex: 2, minWidth: 0, mb: { xs: 2, md: 0 }, boxShadow: 4, transition: 'box-shadow 0.3s' }} elevation={4}>
                 <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>Chart Preview</Typography>
-                {chartType === 'bar' && <Bar data={chartData} options={chartOptions} />}
-                {chartType === 'line' && <Line data={chartData} options={chartOptions} />}
-                {chartType === 'pie' && <Pie data={chartData} options={chartOptions} />}
+                {chartData ? (
+                  <>
+                    {chartType === 'bar' && <Bar data={chartData} options={chartOptions} />}
+                    {chartType === 'line' && <Line data={chartData} options={chartOptions} />}
+                    {chartType === 'pie' && <Pie data={chartData} options={chartOptions} />}
+                  </>
+                ) : (
+                  <Typography variant="body2" color="textSecondary">No chart data available. Please select fields and upload data if necessary.</Typography>
+                )}
               </Paper>
 
             </Box>

@@ -40,7 +40,9 @@ const UserManagementPage = () => {
     }
   };
 
-  if (!user) return null;
+  if (!user || user.role !== 'admin') {
+    return <Typography variant="h6" color="error" sx={{ mt: 5 }}>Access Denied: Admins Only</Typography>;
+  }
 
   return (
     <Container maxWidth="sm">
@@ -65,12 +67,17 @@ const UserManagementPage = () => {
                     <Select
                       value={u.role}
                       onChange={e => handleRoleChange(u.username, e.target.value)}
+                      disabled={u.role === 'admin'}
                     >
                       {roles.map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <Button variant="contained" onClick={() => handleRoleChange(u.username, u.role)}>
+                    <Button
+                      variant="contained"
+                      onClick={() => handleRoleChange(u.username, u.role)}
+                      disabled={u.role === 'admin'}
+                    >
                       Update
                     </Button>
                   </TableCell>

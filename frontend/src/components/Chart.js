@@ -1,6 +1,10 @@
 import React from 'react';
-import { Bar, Line, Pie } from 'react-chartjs-2';
+import { Bar, Line, Pie, Chart as ChartJS } from 'react-chartjs-2';
 import { Typography } from '@mui/material';
+import { Filler } from 'chart.js';
+
+// Register the Filler plugin
+ChartJS.register(Filler);
 
 function Chart({ type, data }) {
   if (!data) {

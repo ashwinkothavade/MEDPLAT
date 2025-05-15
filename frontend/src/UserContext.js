@@ -16,7 +16,7 @@ export const UserProvider = ({ children }) => {
         return;
       }
       try {
-        const res = await axios.get('http://localhost:8000/me', {
+        const res = await axios.get('http://localhost:8000/api/me', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUser(res.data);

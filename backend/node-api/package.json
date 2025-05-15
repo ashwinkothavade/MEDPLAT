@@ -17,6 +17,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^8.14.0",
     "multer": "^1.4.4",
-    "pg": "^8.7.3"
+    "pg": "^8.7.3",
+    "python-shell": "^5.0.0"
   }
 }

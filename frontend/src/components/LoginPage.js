@@ -20,7 +20,7 @@ const LoginPage = ({ setAuth }) => {
       });
       localStorage.setItem('token', res.data.access_token);
       setAuth(true);
-      navigate('/dashboard');
+      navigate('/');
     } catch (e) {
       setError('Invalid username or password');
     }

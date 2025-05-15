@@ -11,24 +11,34 @@ const defaultGraphConfig = {
   interval: 'none',
 };
 
-const MultiGraphDashboard = () => {
-  const [graphs, setGraphs] = useState([
-    { id: 1, config: { ...defaultGraphConfig } },
-  ]);
-  const [nextId, setNextId] = useState(2);
+const MultiGraphDashboard = ({ dashboardId, widgets, setWidgets }) => {
+  // Ensure every widget has a well-formed config (fallback to defaultGraphConfig)
+  function sanitizeWidgets(widgets) {
+    return widgets.map(w => ({
+      ...w,
+      config: {
+        ...defaultGraphConfig,
+        ...(w.config || {})
+      }
+    }));
+  }
+  const safeWidgets = sanitizeWidgets(widgets);
+  // widgets: [{ id, config }], setWidgets: fn(newArray)
+  // Generate nextId based on max id in widgets
+  const getNextId = () => (widgets.length > 0 ? Math.max(...widgets.map(w => w.id || 0)) + 1 : 1);
 
   const addGraph = () => {
-    setGraphs([...graphs, { id: nextId, config: { ...defaultGraphConfig } }]);
-    setNextId(nextId + 1);
+    const nextId = getNextId();
+    setWidgets([...widgets, { id: nextId, config: { ...defaultGraphConfig } }]);
   };
 
   const removeGraph = (id) => {
-    setGraphs(graphs.filter(g => g.id !== id));
+    if (widgets.length === 1) return;
+    setWidgets(widgets.filter(g => g.id !== id));
   };
 
-  // Pass config and setConfig to DashboardPage for each graph
   const updateGraphConfig = (id, newConfig) => {
-    setGraphs(graphs.map(g => g.id === id ? { ...g, config: newConfig } : g));
+    setWidgets(widgets.map(g => g.id === id ? { ...g, config: newConfig } : g));
   };
 
   return (
@@ -40,7 +50,7 @@ const MultiGraphDashboard = () => {
         </Button>
       </Box>
       <Grid container spacing={3}>
-        {graphs.map(({ id, config }) => (
+        {safeWidgets.map(({ id, config }) => (
           <Grid item xs={12} md={6} key={id}>
             <Paper sx={{ p: 2, position: 'relative' }} elevation={4}>
               <IconButton
@@ -48,7 +58,7 @@ const MultiGraphDashboard = () => {
                 size="small"
                 sx={{ position: 'absolute', top: 8, right: 8 }}
                 onClick={() => removeGraph(id)}
-                disabled={graphs.length === 1}
+                disabled={safeWidgets.length === 1}
               >
                 <DeleteIcon />
               </IconButton>
