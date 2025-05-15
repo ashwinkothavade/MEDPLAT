@@ -40,7 +40,7 @@ const UserManagementPage = () => {
     }
   };
 
-  if (!user || user.role !== 'admin') return null;
+  if (!user) return null;
 
   return (
     <Container maxWidth="sm">

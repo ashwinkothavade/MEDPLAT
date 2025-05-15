@@ -19,6 +19,7 @@ mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Multer setup for file uploads
 const upload = multer({ dest: 'uploads/' });
@@ -39,6 +40,10 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+app.get('/', (req, res) => {
+  res.send('Welcome to the MedPlat API');
+}
+);
 // RBAC middleware (sample)
 function rbac(role) {
   return (req, res, next) => {
@@ -49,6 +54,22 @@ function rbac(role) {
     next();
   };
 }
+//for login
+app.post('/token', async (req, res) => {
+  console.log('Request headers:', req.headers); // Debugging log
+  console.log('Request body:', req.body); // Debugging log
+  const hardcodedUsers = [
+    { username: 'admin', password: 'admin123', role: 'admin' },
+    { username: 'user', password: 'user123', role: 'user' },
+  ];
+  const { username, password } = req.body;
+  const user = hardcodedUsers.find(u => u.username === username && u.password === password);
+  if (!user) {
+    return res.status(200).json({ status: 'success', token: 'demo-token', role: 'guest' });
+  }
+  const token = `demo-token-${user.role}`;
+  res.json({ status: 'success', token, role: user.role });
+});
 
 // Registration endpoint
 app.post('/register', async (req, res) => {
@@ -128,7 +149,36 @@ import aiRouter from './ai.js';
 
 app.use('/api/ai', aiRouter);
 
+app.get('/suggest-kpis', (req, res) => {
+  res.json({ message: 'This is a placeholder response for suggest-kpis.' });
+});
+
+app.get('/me', (req, res) => {
+  res.json({ username: 'admin', role: 'admin' });
+});
+
 const PORT = process.env.PORT || 8000;
+app.post('/anomaly', (req, res) => {
+  res.json({ message: 'This is a placeholder response for anomaly detection.' });
+});
+
+app.get('/users', (req, res) => {
+  res.json({
+    users: [
+      { id: 1, username: 'admin', role: 'admin' },
+      { id: 2, username: 'user', role: 'user' }
+    ]
+  });
+});
+
+app.post('/forecast', (req, res) => {
+  res.json({
+    message: 'This is a placeholder response for forecasting.',
+    forecast: [10, 20, 30, 40, 50],
+    field: 'example-field'
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Node API running on port ${PORT}`);
 });
