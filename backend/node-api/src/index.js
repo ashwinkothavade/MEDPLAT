@@ -190,6 +190,19 @@ app.get('/api/datasources', rbac('admin'), (req, res) => {
 });
 
 // CSV Upload
+app.post('/api/upload-api', rbac('admin'), async (req, res) => {
+  const { data } = req.body;
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return res.status(400).json({ error: 'No valid data received from API' });
+  }
+  try {
+    const result = await UploadedData.insertMany(data);
+    res.json({ status: 'uploaded', inserted_count: result.length });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to upload API data', details: err.message });
+  }
+});
+
 app.post('/api/upload', rbac('admin'), upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   const ext = req.file.originalname.split('.').pop().toLowerCase();
