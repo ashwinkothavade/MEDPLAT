@@ -5,7 +5,7 @@ import TimelineIcon from '@mui/icons-material/Timeline';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import axios from 'axios';
 import Chart from './Chart';
-import ChatbotWidget from './ChatbotPage';
+import ChatbotWidget from './ChatbotWidget';
 
 const getAuthHeader = () => {
   const token = localStorage.getItem('token');
@@ -331,10 +331,17 @@ const KPIAndAnalytics = () => {
         </Box>
       )}
       {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+    </>
+  );
+  return (
+    <>
+      <Box sx={{ p: 2 }}>
+        {/* ... rest of analytics UI ... */}
+      </Box>
+      {/* Floating ChatbotWidget available on all analytics pages */}
       <ChatbotWidget />
     </>
   );
-}
+};
 
 export default KPIAndAnalytics;
-

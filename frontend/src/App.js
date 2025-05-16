@@ -10,6 +10,7 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import HomePage from './components/HomePage';
 import ChatbotPage from './components/ChatbotPage';
+import ChatbotWidget from './components/ChatbotWidget';
 import UploadPage from './components/UploadPage';
 import DashboardPage from './components/DashboardPage';
 import DashboardManager from './components/DashboardManager';
@@ -115,6 +116,7 @@ function App() {
                       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                     </Routes>
                   </Box>
+                  <ChatbotWidget />
                 </Container>
               </>
             )}

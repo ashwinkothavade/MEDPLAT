@@ -1,4 +1,8 @@
 import express from 'express';
+import mongoose from 'mongoose';
+import { askGemini } from './gemini.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const router = express.Router();
 
@@ -6,9 +10,6 @@ const router = express.Router();
 router.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
-
-// NLP endpoint
-import mongoose from 'mongoose';
 
 router.post('/nlp', async (req, res) => {
   const { query } = req.body;
@@ -25,6 +26,23 @@ router.post('/nlp', async (req, res) => {
     const docs = await UploadedData.find({}).limit(1000); // limit for perf
     const numericFields = keys.filter(k => docs.some(d => typeof d[k] === 'number' || (!isNaN(Number(d[k])) && d[k] !== null)));
     const categoricalFields = keys.filter(k => !numericFields.includes(k));
+    // Compose context for Gemini
+    let context = `Database fields: ${keys.join(', ')}.\n`;
+    // Optionally, add a sample of the data (first 3 rows)
+    context += 'Sample data:\n';
+    docs.slice(0, 3).forEach((row, idx) => {
+      context += `${idx + 1}: ${JSON.stringify(row.toObject())}\n`;
+    });
+    // Compose prompt for Gemini
+    const prompt = `User question: "${query}"
+You have access to the following database fields and sample data. Answer the user's question using this data as much as possible. If the answer cannot be determined, say so.\n${context}`;
+    // Call Gemini
+    try {
+      const geminiReply = await askGemini(prompt, process.env.OPENAI_API_KEY);
+      return res.json({ reply: geminiReply, chartData: null });
+    } catch (llmErr) {
+      // If Gemini fails, fallback to old logic below
+    }
     // Helper: find best field match for a keyword
     function findField(keyword) {
       return keys.find(k => k.toLowerCase().includes(keyword));
