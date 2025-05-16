@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Button, Alert, Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import { Box, Typography, Button, Alert, Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Card, CardContent, Divider, Grid, TextField, Tooltip, InputAdornment } from '@mui/material';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import axios from 'axios';
 import Chart from './Chart';
+import ChatbotWidget from './ChatbotPage';
 
 const getAuthHeader = () => {
   const token = localStorage.getItem('token');
@@ -89,45 +93,112 @@ const KPIAndAnalytics = () => {
 
 
   return (
-    <Paper sx={{ p: 2, mb: 3 }}>
-      <Typography variant="h6" gutterBottom>Personalized KPI Suggestions</Typography>
-      {kpis.length > 0 ? (
-        <ul>
-          {kpis.map((k, i) => <li key={i}>{k}</li>)}
-        </ul>
-      ) : (
-        <Typography>No suggestions available.</Typography>
-      )}
-      <Box mt={2}>
-        <Box display="flex" alignItems="center" gap={2} mb={2}>
-          <Typography variant="subtitle2">Anomaly Detection:</Typography>
-          <label>
-            Field:
-            <select value={selectedField} onChange={e => setSelectedField(e.target.value)} style={{ marginLeft: 4, marginRight: 12 }}>
-              {fields.map(f => <option key={f} value={f}>{f}</option>)}
-            </select>
-          </label>
-          <label>
-            Threshold:
-            <input type="number" min={0.1} max={10} step={0.1} value={anomalyThreshold} onChange={e => setAnomalyThreshold(Number(e.target.value))} style={{ width: 60, marginLeft: 4 }} />
-          </label>
-          <Button variant="outlined" onClick={fetchAnomaly} disabled={!selectedField}>Run Anomaly Detection</Button>
-        </Box>
-        <Box display="flex" alignItems="center" gap={2} mb={2}>
-          <Typography variant="subtitle2">Forecast:</Typography>
-          <label>
-            Field:
-            <select value={selectedField} onChange={e => setSelectedField(e.target.value)} style={{ marginLeft: 4, marginRight: 12 }}>
-              {fields.map(f => <option key={f} value={f}>{f}</option>)}
-            </select>
-          </label>
-          <label>
-            Periods:
-            <input type="number" min={1} max={30} value={periods} onChange={e => setPeriods(Number(e.target.value))} style={{ width: 60, marginLeft: 4 }} />
-          </label>
-          <Button variant="outlined" onClick={fetchForecast} disabled={!selectedField}>Run Forecast</Button>
-        </Box>
-      </Box>
+    <>
+      <Card sx={{ p: { xs: 1, md: 3 }, mb: 3, background: 'linear-gradient(135deg, #f8fafc 0%, #e3e8ee 100%)', boxShadow: 3 }}>
+        <CardContent>
+          <Box display="flex" alignItems="center" gap={1} mb={2}>
+            <AnalyticsIcon color="primary" fontSize="large" />
+            <Typography variant="h5" fontWeight={700} color="primary.dark">Personalized KPI Suggestions</Typography>
+          </Box>
+          <Divider sx={{ mb: 2 }} />
+          {kpis.length > 0 ? (
+            <ul style={{ margin: 0, paddingLeft: 20 }}>
+              {kpis.map((k, i) => <li key={i} style={{ fontSize: 16 }}>{k}</li>)}
+            </ul>
+          ) : (
+            <Typography>No suggestions available.</Typography>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Anomaly Detection Section */}
+      <Card sx={{ p: { xs: 1, md: 3 }, mb: 3, boxShadow: 2 }}>
+        <CardContent>
+          <Box display="flex" alignItems="center" gap={1} mb={1}>
+            <WarningAmberIcon color="warning" />
+            <Typography variant="subtitle1" fontWeight={600}>Anomaly Detection</Typography>
+          </Box>
+          <Grid container spacing={1} alignItems="center" mb={2}>
+            <Grid item xs={12} md={6}>
+              <Tooltip title="Field to check for anomalies">
+                <TextField
+                  select
+                  label="Field"
+                  value={selectedField}
+                  onChange={e => setSelectedField(e.target.value)}
+                  SelectProps={{ native: true }}
+                  fullWidth
+                  size="small"
+                >
+                  {fields.map(f => <option key={f} value={f}>{f}</option>)}
+                </TextField>
+              </Tooltip>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Tooltip title="Threshold (number of standard deviations)">
+                <TextField
+                  type="number"
+                  label="Threshold"
+                  value={anomalyThreshold}
+                  onChange={e => setAnomalyThreshold(Number(e.target.value))}
+                  inputProps={{ min: 0.1, max: 10, step: 0.1 }}
+                  size="small"
+                  fullWidth
+                />
+              </Tooltip>
+            </Grid>
+            <Grid item xs={12} md={2}>
+              <Button variant="contained" color="warning" onClick={fetchAnomaly} disabled={!selectedField} fullWidth sx={{ height: '40px' }}>Detect</Button>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
+      {/* Forecast Section */}
+      <Card sx={{ p: { xs: 1, md: 3 }, mb: 3, boxShadow: 2 }}>
+        <CardContent>
+          <Box display="flex" alignItems="center" gap={1} mb={1}>
+            <TimelineIcon color="info" />
+            <Typography variant="subtitle1" fontWeight={600}>Forecast</Typography>
+          </Box>
+          <Grid container spacing={1} alignItems="center" mb={2}>
+            <Grid item xs={12} md={6}>
+              <Tooltip title="Field to forecast">
+                <TextField
+                  select
+                  label="Field"
+                  value={selectedField}
+                  onChange={e => setSelectedField(e.target.value)}
+                  SelectProps={{ native: true }}
+                  fullWidth
+                  size="small"
+                >
+                  {fields.map(f => <option key={f} value={f}>{f}</option>)}
+                </TextField>
+              </Tooltip>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Tooltip title="Number of periods to forecast">
+                <TextField
+                  type="number"
+                  label="Periods"
+                  value={periods}
+                  onChange={e => setPeriods(Number(e.target.value))}
+                  inputProps={{ min: 1, max: 30 }}
+                  size="small"
+                  fullWidth
+                />
+              </Tooltip>
+            </Grid>
+            <Grid item xs={12} md={2}>
+              <Button variant="contained" color="info" onClick={fetchForecast} disabled={!selectedField} fullWidth sx={{ height: '40px' }}>Forecast</Button>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
+
+      {/* Anomaly Detection Results */}
       {anomaly && (
         <Box mt={2}>
           <Typography variant="subtitle1">Anomaly Detection Result for <b>{anomaly.field}</b>:</Typography>
@@ -260,8 +331,10 @@ const KPIAndAnalytics = () => {
         </Box>
       )}
       {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-    </Paper>
+      <ChatbotWidget />
+    </>
   );
-};
+}
 
 export default KPIAndAnalytics;
+

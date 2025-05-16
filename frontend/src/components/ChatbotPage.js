@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Container, Box, Typography, TextField, Button, Paper } from '@mui/material';
+import { Box, Typography, TextField, Button, Paper, IconButton, Fade } from '@mui/material';
+import ChatIcon from '@mui/icons-material/Chat';
+import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
-import DataSummary from './DataSummary';
 
-const ChatbotPage = () => {
+const ChatbotWidget = () => {
+  const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,33 +25,51 @@ const ChatbotPage = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box mt={5}>
-        <Typography variant="h4" gutterBottom>Chatbot</Typography>
-        <Paper style={{ minHeight: 300, padding: 16, marginBottom: 16 }}>
-          {messages.map((msg, idx) => (
-            <Box key={idx} textAlign={msg.from === 'user' ? 'right' : 'left'}>
-              <Typography color={msg.from === 'user' ? 'primary' : 'secondary'}>
-                <b>{msg.from === 'user' ? 'You' : 'Bot'}:</b> {msg.text}
-              </Typography>
-            </Box>
-          ))}
-          {loading && <Typography color="textSecondary">Bot is typing...</Typography>}
-        </Paper>
-        <Box display="flex" gap={2}>
-          <TextField
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            fullWidth
-            placeholder="Type your message..."
-            onKeyDown={e => e.key === 'Enter' && handleSend()}
-          />
-          <Button variant="contained" onClick={handleSend} disabled={loading}>Send</Button>
+    <>
+      {/* Floating Chat Button */}
+      {!open && (
+        <Box sx={{ position: 'fixed', bottom: 32, right: 32, zIndex: 1500 }}>
+          <IconButton color="primary" size="large" onClick={() => setOpen(true)} sx={{ boxShadow: 3, bgcolor: 'white' }}>
+            <ChatIcon fontSize="large" />
+          </IconButton>
         </Box>
-        <DataSummary />
-      </Box>
-    </Container>
+      )}
+      {/* Chat Widget */}
+      <Fade in={open} unmountOnExit>
+        <Box sx={{ position: 'fixed', bottom: 32, right: 32, zIndex: 1600, width: 340, maxWidth: '90vw' }}>
+          <Paper elevation={6} sx={{ borderRadius: 3, overflow: 'hidden', display: 'flex', flexDirection: 'column', height: 420 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: 'primary.main', color: 'white', px: 2, py: 1 }}>
+              <ChatIcon sx={{ mr: 1 }} />
+              <Typography variant="h6" sx={{ flexGrow: 1 }}>Chatbot</Typography>
+              <IconButton size="small" onClick={() => setOpen(false)} sx={{ color: 'white' }}><CloseIcon /></IconButton>
+            </Box>
+            <Box sx={{ flex: 1, px: 2, py: 1, overflowY: 'auto', bgcolor: '#f4f7fa' }}>
+              {messages.map((msg, idx) => (
+                <Box key={idx} textAlign={msg.from === 'user' ? 'right' : 'left'} my={0.5}>
+                  <Typography color={msg.from === 'user' ? 'primary' : 'secondary'}>
+                    <b>{msg.from === 'user' ? 'You' : 'Bot'}:</b> {msg.text}
+                  </Typography>
+                </Box>
+              ))}
+              {loading && <Typography color="textSecondary">Bot is typing...</Typography>}
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1, p: 1, borderTop: '1px solid #e0e0e0', bgcolor: 'white' }}>
+              <TextField
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                fullWidth
+                placeholder="Type your message..."
+                size="small"
+                onKeyDown={e => e.key === 'Enter' && handleSend()}
+                disabled={loading}
+              />
+              <Button variant="contained" onClick={handleSend} disabled={loading || !input.trim()}>Send</Button>
+            </Box>
+          </Paper>
+        </Box>
+      </Fade>
+    </>
   );
 };
 
-export default ChatbotPage;
+export default ChatbotWidget;
