@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, CircularProgress, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Container, Typography, Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, CircularProgress, FormControl, InputLabel, Select, MenuItem, useTheme } from '@mui/material';
 import axios from 'axios';
 import { Bar, Line, Pie } from 'react-chartjs-2';
 import KPIAndAnalytics from './KPIAndAnalytics';
@@ -19,6 +19,8 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend);
 
 const DashboardPage = ({ externalConfig, setExternalConfig, hideTitle }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   // Provide default config if any field is missing
   const safeConfig = {
     xField: '',
@@ -178,7 +180,7 @@ const DashboardPage = ({ externalConfig, setExternalConfig, hideTitle }) => {
     <Container maxWidth="lg">
       <Box mt={5}>
         {!hideTitle && (
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, letterSpacing: 1, mb: 3, textAlign: 'center' }}>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, letterSpacing: 1, mb: 3, textAlign: 'center', color: isDark ? 'primary.light' : 'primary.main' }}>
             Dashboard
           </Typography>
         )}
@@ -193,31 +195,31 @@ const DashboardPage = ({ externalConfig, setExternalConfig, hideTitle }) => {
         ) : (
           <Box sx={{ flexGrow: 1 }}>
             <Box mb={3}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>Visualization Controls</Typography>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: isDark ? 'primary.light' : 'inherit' }}>Visualization Controls</Typography>
               <Box mb={2} display="flex" alignItems="center" gap={2}>
-                <FormControl>
-                  <InputLabel>Chart Type</InputLabel>
-                  <Select value={chartType} label="Chart Type" onChange={e => setChartType(e.target.value)}>
+                <FormControl sx={{ minWidth: 120 }}>
+                  <InputLabel sx={{ color: isDark ? 'primary.light' : undefined }}>Chart Type</InputLabel>
+                  <Select value={chartType} label="Chart Type" onChange={e => setChartType(e.target.value)} sx={{ color: isDark ? 'primary.light' : undefined }}>
                     <MenuItem value="bar">Bar</MenuItem>
                     <MenuItem value="line">Line</MenuItem>
                     <MenuItem value="pie">Pie</MenuItem>
                   </Select>
                 </FormControl>
-                <FormControl>
-                  <InputLabel>X</InputLabel>
-                  <Select value={xField} label="X" onChange={e => setXField(e.target.value)}>
+                <FormControl sx={{ minWidth: 120 }}>
+                  <InputLabel sx={{ color: isDark ? 'primary.light' : undefined }}>X</InputLabel>
+                  <Select value={xField} label="X" onChange={e => setXField(e.target.value)} sx={{ color: isDark ? 'primary.light' : undefined }}>
                     {Object.keys(data[0] || {}).map(f => <MenuItem key={f} value={f}>{f}</MenuItem>)}
                   </Select>
                 </FormControl>
-                <FormControl>
-                  <InputLabel>Y</InputLabel>
-                  <Select value={yField} label="Y" onChange={e => setYField(e.target.value)}>
+                <FormControl sx={{ minWidth: 120 }}>
+                  <InputLabel sx={{ color: isDark ? 'primary.light' : undefined }}>Y</InputLabel>
+                  <Select value={yField} label="Y" onChange={e => setYField(e.target.value)} sx={{ color: isDark ? 'primary.light' : undefined }}>
                     {Object.keys(data[0] || {}).map(f => <MenuItem key={f} value={f}>{f}</MenuItem>)}
                   </Select>
                 </FormControl>
-                <FormControl>
-                  <InputLabel>Time Interval</InputLabel>
-                  <Select value={interval} label="Time Interval" onChange={e => setInterval(e.target.value)}>
+                <FormControl sx={{ minWidth: 120 }}>
+                  <InputLabel sx={{ color: isDark ? 'primary.light' : undefined }}>Time Interval</InputLabel>
+                  <Select value={interval} label="Time Interval" onChange={e => setInterval(e.target.value)} sx={{ color: isDark ? 'primary.light' : undefined }}>
                     <MenuItem value="none">None</MenuItem>
                     <MenuItem value="yearly">Yearly</MenuItem>
                     <MenuItem value="half-yearly">Half-Yearly</MenuItem>
@@ -227,8 +229,8 @@ const DashboardPage = ({ externalConfig, setExternalConfig, hideTitle }) => {
               </Box>
             </Box>
             <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={3}>
-              <Paper sx={{ p: 2, flex: 2, minWidth: 0, mb: { xs: 2, md: 0 }, boxShadow: 4, transition: 'box-shadow 0.3s' }} elevation={4}>
-                <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>Chart Preview</Typography>
+              <Paper sx={{ p: 2, flex: 2, minWidth: 0, mb: { xs: 2, md: 0 }, boxShadow: 4, transition: 'box-shadow 0.3s', bgcolor: isDark ? 'background.paper' : '#fff', color: isDark ? 'text.primary' : 'inherit' }} elevation={4}>
+                <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500, color: isDark ? 'primary.light' : 'inherit' }}>Chart Preview</Typography>
                 {chartData ? (
                   <>
                     {chartType === 'bar' && <Bar data={chartData} options={chartOptions} />}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, TextField, Button, Paper, Collapse, Alert, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Divider } from '@mui/material';
+import { Box, Typography, TextField, Button, Paper, Collapse, Alert, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Divider, useTheme } from '@mui/material';
 import axios from 'axios';
 
 const ChatbotPage = () => {
@@ -86,14 +86,16 @@ const ChatbotPage = () => {
     }
   };
 
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', my: 4 }}>
-      <Paper elevation={3} sx={{ p: 2 }}>
-        <Typography variant="h5" gutterBottom>Chatbot</Typography>
-        <Box sx={{ minHeight: 300, mb: 2, bgcolor: '#f4f7fa', p: 2, borderRadius: 2 }}>
+      <Paper elevation={3} sx={{ p: 2, bgcolor: isDark ? 'background.paper' : '#fff', color: isDark ? 'text.primary' : 'inherit' }}>
+        <Typography variant="h5" gutterBottom sx={{ color: isDark ? 'primary.light' : 'primary.main' }}>Chatbot</Typography>
+        <Box sx={{ minHeight: 300, mb: 2, bgcolor: isDark ? 'background.default' : '#f4f7fa', p: 2, borderRadius: 2 }}>
           {messages.map((msg, idx) => (
             <Box key={idx} textAlign={msg.from === 'user' ? 'right' : 'left'} my={0.5}>
-              <Typography color={msg.from === 'user' ? 'primary' : 'secondary'}>
+              <Typography color={msg.from === 'user' ? (isDark ? 'primary.light' : 'primary.main') : (isDark ? 'secondary.light' : 'secondary.main')}>
                 <b>{msg.from === 'user' ? 'You' : 'Bot'}:</b> {msg.text}
               </Typography>
             </Box>
@@ -118,9 +120,9 @@ const ChatbotPage = () => {
         <Collapse in={summaryOpen}>
           {summaryError && <Alert severity="error">{summaryError}</Alert>}
           {dataSummary && (
-            <Paper elevation={1} sx={{ mt: 2, bgcolor: '#f7fafc', p: 3, borderRadius: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2, color: 'primary.main', fontWeight: 700, letterSpacing: 1 }}>Data Summary</Typography>
-              <Divider sx={{ mb: 2 }} />
+            <Paper elevation={1} sx={{ mt: 2, bgcolor: isDark ? 'background.default' : '#f7fafc', color: isDark ? 'text.primary' : 'inherit', p: 3, borderRadius: 3 }}>
+              <Typography variant="h6" sx={{ mb: 2, color: isDark ? 'primary.light' : 'primary.main', fontWeight: 700, letterSpacing: 1 }}>Data Summary</Typography>
+              <Divider sx={{ mb: 2, bgcolor: isDark ? 'divider' : undefined }} />
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Typography variant="body1" sx={{ fontWeight: 600, mr: 2 }}>Total Records:</Typography>
                 <Typography variant="body1">{dataSummary.count}</Typography>
@@ -128,15 +130,15 @@ const ChatbotPage = () => {
               <Divider sx={{ mb: 2 }} />
               {/* Numeric Field Stats */}
               <Typography variant="subtitle1" sx={{ mt: 2, mb: 1, fontWeight: 600, color: 'secondary.main' }}>Numeric Field Statistics</Typography>
-              <TableContainer component={Paper} elevation={0} sx={{ mb: 2 }}>
+              <TableContainer component={Paper} elevation={0} sx={{ mb: 2, bgcolor: isDark ? 'background.paper' : '#fff' }}>
                 <Table size="small">
-                  <TableHead sx={{ bgcolor: '#e3e6ea' }}>
+                  <TableHead sx={{ bgcolor: isDark ? 'grey.900' : '#e3e6ea' }}>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 600 }}>Field</TableCell>
-                      <TableCell>Min</TableCell>
-                      <TableCell>Max</TableCell>
-                      <TableCell>Mean</TableCell>
-                      <TableCell>Std Dev</TableCell>
+                      <TableCell sx={{ fontWeight: 600, color: isDark ? 'primary.light' : 'inherit' }}>Field</TableCell>
+                      <TableCell sx={{ color: isDark ? 'primary.light' : 'inherit' }}>Min</TableCell>
+                      <TableCell sx={{ color: isDark ? 'primary.light' : 'inherit' }}>Max</TableCell>
+                      <TableCell sx={{ color: isDark ? 'primary.light' : 'inherit' }}>Mean</TableCell>
+                      <TableCell sx={{ color: isDark ? 'primary.light' : 'inherit' }}>Std Dev</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -173,12 +175,12 @@ const ChatbotPage = () => {
                 return (
                   <Box key={field} sx={{ mb: 2 }}>
                     <Typography variant="body2" sx={{ fontWeight: 500 }}>{`Grouped by ${field}:`}</Typography>
-                    <TableContainer component={Paper} elevation={0}>
+                    <TableContainer component={Paper} elevation={0} sx={{ bgcolor: isDark ? 'background.paper' : '#fff' }}>
                       <Table size="small">
-                        <TableHead sx={{ bgcolor: '#e3e6ea' }}>
+                        <TableHead sx={{ bgcolor: isDark ? 'grey.900' : '#e3e6ea' }}>
                           <TableRow>
-                            <TableCell sx={{ fontWeight: 600 }}>{field}</TableCell>
-                            <TableCell>Count</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: isDark ? 'primary.light' : 'inherit' }}>{field}</TableCell>
+                            <TableCell sx={{ color: isDark ? 'primary.light' : 'inherit' }}>Count</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -218,14 +220,14 @@ const ChatbotPage = () => {
                 </Box>
               </Box>
               {/* Aggregation Table */}
-              <TableContainer component={Paper} elevation={0}>
+              <TableContainer component={Paper} elevation={0} sx={{ bgcolor: isDark ? 'background.paper' : '#fff' }}>
                 <Table size="small">
-                  <TableHead sx={{ bgcolor: '#e3e6ea' }}>
+                  <TableHead sx={{ bgcolor: isDark ? 'grey.900' : '#e3e6ea' }}>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 600 }}>{groupByField}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, color: isDark ? 'primary.light' : 'inherit' }}>{groupByField}</TableCell>
                       {selectedNumericFields.flatMap(numField => (
                         selectedAggs.map(agg => (
-                          <TableCell key={numField+agg+':field'} sx={{ fontWeight: 600 }}>{numField} ({agg})</TableCell>
+                          <TableCell key={numField+agg+':field'} sx={{ fontWeight: 600, color: isDark ? 'primary.light' : 'inherit' }}>{numField} ({agg})</TableCell>
                         ))
                       ))}
                     </TableRow>

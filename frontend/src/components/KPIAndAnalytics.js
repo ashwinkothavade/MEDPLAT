@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Button, Alert, Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Card, CardContent, Divider, Grid, TextField, Tooltip, InputAdornment } from '@mui/material';
+import { Box, Typography, Button, Alert, Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Card, CardContent, Divider, Grid, TextField, Tooltip, InputAdornment, useTheme } from '@mui/material';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -13,6 +13,8 @@ const getAuthHeader = () => {
 };
 
 const KPIAndAnalytics = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   const [kpis, setKpis] = useState([]);
   const [anomaly, setAnomaly] = useState(null);
   const [forecast, setForecast] = useState(null);
@@ -94,19 +96,19 @@ const KPIAndAnalytics = () => {
 
   return (
     <>
-      <Card sx={{ p: { xs: 1, md: 3 }, mb: 3, background: 'linear-gradient(135deg, #f8fafc 0%, #e3e8ee 100%)', boxShadow: 3 }}>
+      <Card sx={{ p: { xs: 1, md: 3 }, mb: 3, boxShadow: 3, background: isDark ? 'linear-gradient(135deg, #23272f 0%, #23272f 100%)' : 'linear-gradient(135deg, #f8fafc 0%, #e3e8ee 100%)', bgcolor: isDark ? 'background.paper' : undefined, color: isDark ? 'primary.light' : 'primary.dark' }}>
         <CardContent>
           <Box display="flex" alignItems="center" gap={1} mb={2}>
-            <AnalyticsIcon color="primary" fontSize="large" />
-            <Typography variant="h5" fontWeight={700} color="primary.dark">Personalized KPI Suggestions</Typography>
+            <AnalyticsIcon sx={{ color: isDark ? theme.palette.primary.light : theme.palette.primary.main }} fontSize="large" />
+            <Typography variant="h5" fontWeight={700} sx={{ color: isDark ? 'primary.light' : 'primary.dark' }}>Personalized KPI Suggestions</Typography>
           </Box>
-          <Divider sx={{ mb: 2 }} />
+          <Divider sx={{ mb: 2, bgcolor: isDark ? 'divider' : undefined }} />
           {kpis.length > 0 ? (
             <ul style={{ margin: 0, paddingLeft: 20 }}>
               {kpis.map((k, i) => <li key={i} style={{ fontSize: 16 }}>{k}</li>)}
             </ul>
           ) : (
-            <Typography>No suggestions available.</Typography>
+            <Typography sx={{ color: isDark ? 'grey.400' : undefined }}>No suggestions available.</Typography>
           )}
         </CardContent>
       </Card>
